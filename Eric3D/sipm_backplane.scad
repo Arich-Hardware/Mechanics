@@ -6,20 +6,22 @@
 //
 
 
-fpga_draw = 0;			/* enable FPGA board display */
 readout_draw = 1;		/* enable "flat" CITIROC display */
-cooling_draw = 1;		/* enable cooling plate display */
-cooling_extend = 1;		/* extend cooling outside box */
-cooling_pipe = 1;
-backplane_draw = 1;		/* draw "backplane" boards */
-sipm_draw = 1;			/* enable SiPM module display */
+cooling_draw = 0;		/* enable cooling plate display */
+cooling_extend = 0;		/* extend cooling outside box */
+cooling_pipe = 0;
+backplane_draw = 0;		/* draw "backplane" boards */
+sipm_draw = 0;			/* enable SiPM module display */
 disc_draw = 0;			/* enable Cherenkov ring */
 corner_fill = 1;		/* fill corners */
 box_draw = 0;			/* draw simple enclosure */
 
 
-zynq_draw = 1;
+draw_hv_mod = 0;
+zynq_draw = 0;
 conn_draw = 1;
+simple_trenz = 1;
+
 draw_thermal_pad = 1;
 
 prototype = 0;			/* prototype version 2 CITIROC */
@@ -28,7 +30,7 @@ prototype = 0;			/* prototype version 2 CITIROC */
 // ---------- rendering details ----------
 // size of the big array (nom 9x9)
 x_count = prototype ? 1 : 9;
-y_count = prototype ? 1 : 9;
+y_count = prototype ? 1 : 1;
 
 
 // select CITIROC package
@@ -113,6 +115,29 @@ cool_slot_len_clear = 2;
 function conn1_pos() = -12.63;
 function conn2_pos() = -37.88;
 
+
+module trenz_simple() {
+}
+
+module trenz() {
+     rotate( [180, 180, 0]) {
+	  if( simple_trenz) {
+	       color("#3030c0")
+		    cube( [40, 30, 1.6]);
+	       color("grey")
+		    translate( [13, 8, 1.6])
+		    cube( [15, 15, 1]);
+	       color("black") {
+		    translate( [7, 2, -10])
+			 cube( [30, 6, 10]);
+		    translate( [2, 21, -10])
+			 cube( [30, 6, 10]);
+	       }
+	  } else {
+	       color("#606060") import("trenz-0714.stl");
+	  }
+     }
+}
 
 module mars() {
      rotate( [180, 0, 0])
@@ -396,9 +421,9 @@ bp_loop_y = prototype ? [50] : [ module_pitch : pitch_y : diam-module_pitch];
 citiroc_stagger = 15;
 
 // fpga_pos = [ 2, 4, 7];  // three
-// fpga_pos = [ 2, 3, 4, 5, 6, 7 ];  // six
+fpga_pos = [ 1, 2, 4, 5, 7, 8 ];  // six
 
-fpga_pos = [ 2, 3, 4, 5, 6 ];  // five
+// fpga_pos = [ 2, 3, 4, 5, 6 ];  // five
 
 
 
@@ -431,7 +456,7 @@ module readout_pcb(row) {
      }
 
      // HV module
-     if( !prototype)
+     if( !prototype && draw_hv_mod)
      translate( [readout_pcb_height-10, pcb_thick, vert_pcb_Zsize-10])
 	  rotate( [270, 90, 0])
 	  hv_mod();
@@ -465,8 +490,8 @@ module readout_pcb(row) {
 			      }
 			      // 
 			      if( search( ix, fpga_pos)) {
-				   translate( [10, 60, 0])
-					fpga();
+				   translate( [77, 70, 10])
+					trenz();
 			      }
 			 }
 		    }
