@@ -16,7 +16,7 @@ disc_draw = 0;			/* enable Cherenkov ring */
 corner_fill = 1;		/* fill corners */
 box_draw = 0;			/* draw simple enclosure */
 
-
+draw_panel = 0;
 draw_hv_mod = 0;
 zynq_draw = 0;
 conn_draw = 1;
@@ -30,7 +30,7 @@ prototype = 0;			/* prototype version 2 CITIROC */
 // ---------- rendering details ----------
 // size of the big array (nom 9x9)
 x_count = prototype ? 1 : 9;
-y_count = prototype ? 1 : 1;
+y_count = prototype ? 1 : 9;
 
 
 // select CITIROC package
@@ -436,7 +436,7 @@ module readout_pcb(row) {
 	  cube( [readout_pcb_height, pcb_thick, vert_pcb_Zsize]);
 
      // draw panel, for now PCB is in the middle which is a bit odd
-     if( !prototype)
+     if( !prototype && draw_panel)
      translate( [-panel_overhang, -panel_height/2, vert_pcb_Zsize])
 	  color( [0.7, 0.7, 0.7, 0.5])
 	  cube( [readout_pcb_height+2*panel_overhang, panel_height, panel_thick]);
@@ -444,7 +444,7 @@ module readout_pcb(row) {
      // RJ-45 jack
      translate( [30, pcb_thick, vert_pcb_Zsize-5])
 	  rotate( [0, 0, 180])
-	  if( conn_draw)
+	  if( conn_draw && draw_panel)
 	  rj45_jack();
 
 
@@ -630,16 +630,26 @@ xsection = 0;
 
 //translate( [diam, 0, 0])
 
-if( !xsection)
+// normal view
+if( xsection == 0)
 rotate( [90, 270, 0]) {
      array();
      if( box_draw) {
 	  box();
      }
 }
-else {
+
+// 2D render SiPM, backplane etc
+if( xsection == 1) {
      projection( cut=true)
      rotate( [0, 0, 90])
      translate( [0, 0, -5])
 	  array();
+}
+
+// 2D render readout board
+if( xsection == 2) {
+     projection( cut=false)
+     rotate( [90, 0, 0])
+     array();
 }
