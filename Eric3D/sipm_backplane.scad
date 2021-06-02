@@ -11,12 +11,12 @@ cooling_draw = 0;		/* enable cooling plate display */
 cooling_extend = 0;		/* extend cooling outside box */
 cooling_pipe = 0;
 backplane_draw = 1;		/* draw "backplane" boards */
-sipm_draw = 0;			/* enable SiPM module display */
+sipm_draw = 1;			/* enable SiPM module display */
 disc_draw = 0;			/* enable Cherenkov ring */
 corner_fill = 1;		/* fill corners */
 box_draw = 0;			/* draw simple enclosure */
 
-draw_panel = 0;
+draw_panel = 1;
 draw_hv_mod = 0;
 zynq_draw = 0;
 conn_draw = 1;
@@ -24,13 +24,13 @@ simple_trenz = 1;
 
 draw_thermal_pad = 1;
 
-prototype = 0;			/* prototype version 2 CITIROC */
+prototype = 1;			/* prototype version 2 CITIROC */
 // (overrides array size and other things when 1)
 
 // ---------- rendering details ----------
 // size of the big array (nom 9x9)
 x_count = prototype ? 1 : 9;
-y_count = prototype ? 1 : 9;
+y_count = prototype ? 1 : 1;
 
 
 // select CITIROC package
@@ -42,8 +42,8 @@ cooling_alpha = 0.75;		/* transparency of cooling plate */
 // (param $t goes from 0..1 for animation)
 
 cooling_offset = 0;
-backplane_offset = 0;
-readout_offset = 0;
+backplane_offset = 15;
+readout_offset = 30;
 
 //---------- SiPMs ----------
 
@@ -119,7 +119,9 @@ function conn2_pos() = -37.88;
 module trenz_simple() {
 }
 
-module trenz() {
+module trenz(labl) {
+     translate( [-25, -15, 4])
+     text( size=3, text=labl);
      rotate( [180, 180, 0]) {
 	  if( simple_trenz) {
 	       color("#3030c0")
@@ -473,8 +475,8 @@ module readout_pcb(row) {
 				   translate( [-sipm_pitch-15, 0, 0])
 					citiroc("brown","CITIROC");
 			      }
-				   translate( [0, 60, 0])
-					fpga();
+				   translate( [15, 90, 10])
+					trenz("Trenz");
 
 			 } else { /* standard CITIROCs, FPGA */
 			      if( lt250( ix, row) || corner_fill) {
