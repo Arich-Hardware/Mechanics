@@ -11,7 +11,7 @@ cooling_draw = 0;		/* enable cooling plate display */
 cooling_extend = 0;		/* extend cooling outside box */
 cooling_pipe = 0;
 backplane_draw = 1;		/* draw "backplane" boards */
-sipm_draw = 1;			/* enable SiPM module display */
+sipm_draw = 0;			/* enable SiPM module display */
 disc_draw = 0;			/* enable Cherenkov ring */
 corner_fill = 1;		/* fill corners */
 box_draw = 0;			/* draw simple enclosure */
@@ -24,7 +24,7 @@ simple_trenz = 1;
 
 draw_thermal_pad = 1;
 
-prototype = 1;			/* prototype version 2 CITIROC */
+prototype = 0;			/* prototype version 2 CITIROC */
 // (overrides array size and other things when 1)
 
 // ---------- rendering details ----------
@@ -42,8 +42,8 @@ cooling_alpha = 0.75;		/* transparency of cooling plate */
 // (param $t goes from 0..1 for animation)
 
 cooling_offset = 0;
-backplane_offset = 15;
-readout_offset = 30;
+backplane_offset = 0;
+readout_offset = 0;
 
 //---------- SiPMs ----------
 
@@ -76,7 +76,8 @@ pcb_gap = 1.0;
 // Vertical PCB parameters
 vert_pcb_Zoffset = 19.3;		/* offset in +Z so connectors mate*/
 vert_pcb_Yoffset = -4;		/* offset in +Y */
-vert_pcb_Zsize = prototype ? 150 : 110;		/* board size in Z */
+
+vert_pcb_Zsize = 110;		/* board size in Z */
 
 //---------- cooling plate ----------
 cooling_thick = 8;		/* cooling plate thickness */
@@ -240,7 +241,8 @@ box_posX = -panel_overhang;
 box_posY = conn1_pos();
 box_posZ = 0;
 
-readout_pcb_height = prototype ? 100 : diam;
+// readout_pcb_height = prototype ? 100 : diam;
+readout_pcb_height = prototype ? 450 : diam;
 
 module box() {
      translate( [box_posX, box_posY, box_posZ]) {
@@ -438,7 +440,7 @@ module readout_pcb(row) {
 	  cube( [readout_pcb_height, pcb_thick, vert_pcb_Zsize]);
 
      // draw panel, for now PCB is in the middle which is a bit odd
-     if( !prototype && draw_panel)
+     if( draw_panel)
      translate( [-panel_overhang, -panel_height/2, vert_pcb_Zsize])
 	  color( [0.7, 0.7, 0.7, 0.5])
 	  cube( [readout_pcb_height+2*panel_overhang, panel_height, panel_thick]);
@@ -458,7 +460,7 @@ module readout_pcb(row) {
      }
 
      // HV module
-     if( !prototype && draw_hv_mod)
+     if( draw_hv_mod)
      translate( [readout_pcb_height-10, pcb_thick, vert_pcb_Zsize-10])
 	  rotate( [270, 90, 0])
 	  hv_mod();
@@ -475,7 +477,7 @@ module readout_pcb(row) {
 				   translate( [-sipm_pitch-15, 0, 0])
 					citiroc("brown","CITIROC");
 			      }
-				   translate( [15, 90, 10])
+				   translate( [15, 75, 10])
 					trenz("Trenz");
 
 			 } else { /* standard CITIROCs, FPGA */
