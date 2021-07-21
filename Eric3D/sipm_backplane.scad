@@ -7,11 +7,11 @@
 
 
 readout_draw = 1;		/* enable "flat" CITIROC display */
-cooling_draw = 0;		/* enable cooling plate display */
-cooling_extend = 0;		/* extend cooling outside box */
-cooling_pipe = 0;
+cooling_draw = 1;		/* enable cooling plate display */
+cooling_extend = 1;		/* extend cooling outside box */
+cooling_pipe = 1;
 backplane_draw = 1;		/* draw "backplane" boards */
-sipm_draw = 0;			/* enable SiPM module display */
+sipm_draw = 1;			/* enable SiPM module display */
 disc_draw = 0;			/* enable Cherenkov ring */
 corner_fill = 1;		/* fill corners */
 box_draw = 0;			/* draw simple enclosure */
@@ -30,7 +30,7 @@ prototype = 0;			/* prototype version 2 CITIROC */
 // ---------- rendering details ----------
 // size of the big array (nom 9x9)
 x_count = prototype ? 1 : 9;
-y_count = prototype ? 1 : 1;
+y_count = prototype ? 1 : 9;
 
 
 // select CITIROC package
