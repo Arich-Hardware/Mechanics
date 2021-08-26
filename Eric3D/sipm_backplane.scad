@@ -7,11 +7,11 @@
 
 
 readout_draw = 1;		/* enable "flat" CITIROC display */
-cooling_draw = 1;		/* enable cooling plate display */
-cooling_extend = 1;		/* extend cooling outside box */
-cooling_pipe = 1;
-backplane_draw = 1;		/* draw "backplane" boards */
-sipm_draw = 1;			/* enable SiPM module display */
+cooling_draw = 0;		/* enable cooling plate display */
+cooling_extend = 0;		/* extend cooling outside box */
+cooling_pipe = 0;
+backplane_draw = 0;		/* draw "backplane" boards */
+sipm_draw = 0;			/* enable SiPM module display */
 disc_draw = 0;			/* enable Cherenkov ring */
 corner_fill = 1;		/* fill corners */
 box_draw = 0;			/* draw simple enclosure */
@@ -20,7 +20,9 @@ draw_panel = 1;
 draw_hv_mod = 0;
 zynq_draw = 0;
 conn_draw = 1;
-simple_trenz = 1;
+simple_trenz = 0;
+
+citiroc_backplane_cluster = 1;	/* cluster 3 CITIROC at backplane conn */
 
 draw_thermal_pad = 1;
 
@@ -30,7 +32,7 @@ prototype = 0;			/* prototype version 2 CITIROC */
 // ---------- rendering details ----------
 // size of the big array (nom 9x9)
 x_count = prototype ? 1 : 9;
-y_count = prototype ? 1 : 9;
+y_count = prototype ? 1 : 1;
 
 
 // select CITIROC package
@@ -120,6 +122,8 @@ function conn2_pos() = -37.88;
 module trenz_simple() {
 }
 
+trenz_conn_height = 7;
+
 module trenz(labl) {
      translate( [-25, -15, 4])
      text( size=3, text=labl);
@@ -131,10 +135,10 @@ module trenz(labl) {
 		    translate( [13, 8, 1.6])
 		    cube( [15, 15, 1]);
 	       color("black") {
-		    translate( [7, 2, -10])
-			 cube( [30, 6, 10]);
-		    translate( [2, 21, -10])
-			 cube( [30, 6, 10]);
+		    translate( [7, 2, -trenz_conn_height])
+			 cube( [30, 6, trenz_conn_height]);
+		    translate( [2, 21, -trenz_conn_height])
+			 cube( [30, 6, trenz_conn_height]);
 	       }
 	  } else {
 	       color("#606060") import("trenz-0714.stl");
@@ -148,6 +152,22 @@ module mars() {
      import( "mars.stl", convexity=3);
 }
      
+
+// Schroff handles
+module handle_top() {
+  color("#605040") import("20817663.stl");
+}
+
+module handle_bot() {
+  color("#605040") import("20817653.stl");
+}
+
+
+
+// SFP cage
+module sfp() {
+  color( "#405060") import("SFP-2227023-1.stl");
+}
 
 // SO-DIMM socket
 module sodimm() {
@@ -231,7 +251,7 @@ module draw_cooling_pipe() {
 // pseudo front-panel dimensions
 panel_height = module_pitch-pcb_gap;
 panel_thick = 1.6;
-panel_overhang = 12;
+panel_overhang = 20;
 
 box_height = diam+2*panel_overhang;
 box_width = diam-conn1_pos();
@@ -422,7 +442,7 @@ bp_loop_y = prototype ? [50] : [ module_pitch : pitch_y : diam-module_pitch];
 // two large FPGA at center
 
 
-citiroc_stagger = 15;
+citiroc_stagger = 0;
 
 // fpga_pos = [ 2, 4, 7];  // three
 fpga_pos = [ 1, 2, 4, 5, 7, 8 ];  // six
@@ -433,84 +453,122 @@ fpga_pos = [ 1, 2, 4, 5, 7, 8 ];  // six
 
 module readout_pcb(row) {
 
-     // adjust position
+  // adjust position
 
-     // draw one long PCB
-     color( [0, 0.4, 0, 1])
-	  cube( [readout_pcb_height, pcb_thick, vert_pcb_Zsize]);
+  // draw one long PCB
+  color( [0, 0.4, 0, 1])
+    cube( [readout_pcb_height, pcb_thick, vert_pcb_Zsize]);
 
-     // draw panel, for now PCB is in the middle which is a bit odd
-     if( draw_panel)
-     translate( [-panel_overhang, -panel_height/2, vert_pcb_Zsize])
-	  color( [0.7, 0.7, 0.7, 0.5])
-	  cube( [readout_pcb_height+2*panel_overhang, panel_height, panel_thick]);
+  // draw panel, for now PCB is in the middle which is a bit odd
+  if( draw_panel)
+    translate( [-panel_overhang, -panel_height/2, vert_pcb_Zsize])
+      color( [0.7, 0.7, 0.7, 0.5])
+      cube( [readout_pcb_height+2*panel_overhang, panel_height, panel_thick]);
 
-     // RJ-45 jack
-     translate( [30, pcb_thick, vert_pcb_Zsize-5])
-	  rotate( [0, 0, 180])
-	  if( conn_draw && draw_panel)
-	  rj45_jack();
+//   // RJ-45 jack
+//   translate( [30, pcb_thick, vert_pcb_Zsize-5])
+//     rotate( [0, 0, 180])
+//     if( conn_draw && draw_panel)
+//       rj45_jack();
 
+  // handles
+  translate( [readout_pcb_height-37, 4, 4+vert_pcb_Zsize+50])
+  rotate( [270, 270, 180])
+  handle_top();
 
-     // Enclustra Zynq SO-DIMM
-     if( zynq_draw) {
-	  translate( [65, pcb_thick, vert_pcb_Zsize-40])
-	       rotate( [0, 270, 0])
-	       sodimm();
-     }
+  translate( [35, -11, 4+vert_pcb_Zsize+50])
+  rotate( [90, 270, 180])
+  handle_bot();
 
-     // HV module
-     if( draw_hv_mod)
-     translate( [readout_pcb_height-10, pcb_thick, vert_pcb_Zsize-10])
-	  rotate( [270, 90, 0])
-	  hv_mod();
+  
+
+  // SFP cage
+  translate( [30, pcb_thick+5, vert_pcb_Zsize+3])
+    rotate( [0, 0, 0])
+    if( conn_draw && draw_panel)
+      sfp();
+  
+
+  // Enclustra Zynq SO-DIMM
+  if( zynq_draw) {
+    translate( [65, pcb_thick, vert_pcb_Zsize-40])
+      rotate( [0, 270, 0])
+      sodimm();
+  }
+
+  // HV module
+  if( draw_hv_mod)
+    translate( [readout_pcb_height-10, pcb_thick, vert_pcb_Zsize-10])
+      rotate( [270, 90, 0])
+      hv_mod();
      
-     // loop over CITIROC and install needed ones
-     // (missing ones in light grey)
-     for( ix=[0:x_count-1]) {
-	  translate( [ix*module_pitch, 0, 0]) {
-	       translate( [45, pcb_thick, 25]) {
-		    rotate( [90, 0, 180]) {
-			 if( prototype) { /* prototype CITIROCs, FPGA */
-			      translate( [5, 0, 0]) {
-				   citiroc("brown","CITIROC");
-				   translate( [-sipm_pitch-15, 0, 0])
-					citiroc("brown","CITIROC");
-			      }
-				   translate( [15, 75, 10])
-					trenz("Trenz");
+  // loop over CITIROC and install needed ones
+  // (missing ones in light grey)
+  for( ix=[0:x_count-1]) {
+    translate( [ix*module_pitch, 0, 0]) {
+      translate( [45, pcb_thick, 25]) {
+	rotate( [90, 0, 180]) {
+	  if( prototype) { /* prototype CITIROCs, FPGA */
+	    translate( [5, 0, 0]) {
+	      citiroc("brown","CITIROC");
+	      translate( [-sipm_pitch-15, 0, 0])
+		citiroc("brown","CITIROC");
+	    }
+	    translate( [15, 75, 10])
+	      trenz("Trenz");
 
-			 } else { /* standard CITIROCs, FPGA */
-			      if( lt250( ix, row) || corner_fill) {
-				   // draw installed CITIROC
-				   citiroc("brown","CITIROC");
-				   translate( [sipm_pitch, citiroc_stagger, 0])
-					citiroc("brown","CITIROC");
-			      } else {
-				   // draw greyed-out CITIROC
-				   citiroc([0.75, 0.75, 0.75, 0.4]," ");
-				   translate( [sipm_pitch, citiroc_stagger, 0])
-					citiroc([0.75, 0.75, 0.75, 0.4]," ");
-			      }
-			      // 
-			      if( search( ix, fpga_pos)) {
-				   translate( [77, 70, 10])
-					trenz();
-			      }
-			 }
-		    }
-	       }
+	  } else { /* standard CITIROCs, FPGA */
+	    if( !citiroc_backplane_cluster) {
+	      if( lt250( ix, row) || corner_fill) {
+		// draw installed CITIROC
+		citiroc("brown","CITIROC");
+		translate( [sipm_pitch, citiroc_stagger, 0])
+		  citiroc("brown","CITIROC");
+	      } else {
+		// draw greyed-out CITIROC
+		citiroc([0.75, 0.75, 0.75, 0.4]," ");
+		translate( [sipm_pitch, citiroc_stagger, 0])
+		  citiroc([0.75, 0.75, 0.75, 0.4]," ");
+	      }
+	      // 
+	      if( search( ix, fpga_pos)) {
+		translate( [77, 70, 10])
+		  trenz();
+	      }
+	    }
+
 	  }
+	}
+      }
+    }
 
-     }
+  }
 
-     // backplane connectors
-     for( pos_y = bp_loop_y) {
-	  translate( [pos_y, 4, 0])
-	       rotate( [0, 180, 0])
-	       if( conn_draw)
-		    samtec_erm8();
-     }
+  // backplane connectors
+  for( pos_y = bp_loop_y) {
+    translate( [pos_y, 4, 0]) {
+      if( citiroc_backplane_cluster) {
+	// draw 3 CITIROC near BP connector
+	translate( [45, pcb_thick-4, 20]) {
+	  rotate( [90, 0, 180]) {
+	    translate( [20, 0, 0])
+	      citiroc("brown","CITIROC");
+	    translate( [40, 10, 0])
+	      citiroc("brown","CITIROC");
+	    translate( [60, 0, 0])
+	      citiroc("brown","CITIROC");
+	    translate( [20, 76, trenz_conn_height])
+	      rotate( [0, 0, 90])
+	      trenz();
+	  }
+	}
+      }
+      rotate( [0, 180, 0]) {
+	if( conn_draw)
+	  samtec_erm8();
+      }
+    }
+  }
 
 }
 
